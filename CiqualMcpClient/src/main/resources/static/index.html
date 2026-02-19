@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIQUAL Nutritional Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@300;400&family=IBM+Plex+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --cream-dark: #ede7d9;
+      --ink: #1a1714;
+      --ink-soft: #4a4540;
+      --ink-muted: #8a8480;
+      --gold: #b8860b;
+      --gold-light: #d4a017;
+      --gold-pale: #f5e6b8;
+      --user-bg: #1a1714;
+      --user-text: #f5f0e8;
+      --assistant-bg: #ffffff;
+      --assistant-border: #e0d8cc;
+      --radius-bubble: 18px;
+      --radius-input: 12px;
+      --shadow-soft: 0 2px 12px rgba(26,23,20,0.08);
+      --shadow-card: 0 4px 24px rgba(26,23,20,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 300;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid var(--cream-dark);
+      background: var(--cream);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .header-subtitle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 300;
+      color: var(--ink-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin-bottom: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Thread */
+    .thread {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .thread::-webkit-scrollbar { width: 4px; }
+    .thread::-webkit-scrollbar-track { background: transparent; }
+    .thread::-webkit-scrollbar-thumb { background: var(--cream-dark); border-radius: 2px; }
+
+    /* Message bubbles */
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+      animation: slideIn 0.28s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0)  scale(1); }
+    }
+
+    .message.user  { align-self: flex-end; align-items: flex-end; }
+    .message.assistant { align-self: flex-start; align-items: flex-start; }
+
+    .bubble {
+      padding: 12px 16px;
+      line-height: 1.6;
+      font-size: 0.93rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message.user .bubble {
+      background: var(--user-bg);
+      color: var(--user-text);
+      border-radius: var(--radius-bubble) var(--radius-bubble) 4px var(--radius-bubble);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 300;
+    }
+
+    .message.assistant .bubble {
+      background: var(--assistant-bg);
+      color: var(--ink);
+      border: 1px solid var(--assistant-border);
+      border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
+      box-shadow: var(--shadow-soft);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 300;
+    }
+
+    .message-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 5px;
+      padding: 0 4px;
+    }
+
+    /* Loading dots */
+    .loading-bubble {
+      background: var(--assistant-bg);
+      border: 1px solid var(--assistant-border);
+      border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
+      box-shadow: var(--shadow-soft);
+      padding: 14px 18px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30%            { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Input bar */
+    .input-bar {
+      padding: 16px 20px 20px;
+      background: var(--cream);
+      border-top: 1px solid var(--cream-dark);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      resize: none;
+      border: 1px solid var(--cream-dark);
+      border-radius: var(--radius-input);
+      background: var(--assistant-bg);
+      color: var(--ink);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 300;
+      line-height: 1.5;
+      padding: 12px 14px;
+      outline: none;
+      box-shadow: var(--shadow-soft);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      max-height: 120px;
+      min-height: 48px;
+      overflow-y: auto;
+    }
+
+    textarea::placeholder { color: var(--ink-muted); }
+
+    textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(184,134,11,0.12), var(--shadow-soft);
+    }
+
+    button#send {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: none;
+      background: var(--ink);
+      color: var(--cream);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s, transform 0.12s;
+    }
+
+    button#send:hover  { background: var(--gold); }
+    button#send:active { transform: scale(0.94); }
+    button#send:disabled { background: var(--cream-dark); cursor: not-allowed; }
+
+    button#send svg { width: 18px; height: 18px; }
+
+    /* Divider date */
+    .thread-start {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ink-muted);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .thread-start::before, .thread-start::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--cream-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-dot"></div>
+      <span class="header-title">CIQUAL</span>
+      <span class="header-subtitle">Nutritional Assistant</span>
+    </header>
+
+    <div class="thread" id="thread">
+      <div class="thread-start">Today</div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea
+          id="input"
+          placeholder="Ask about a food item…"
+          rows="1"
+          autofocus
+        ></textarea>
+      </div>
+      <button id="send" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const thread  = document.getElementById('thread');
+    const input   = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+
+    // Auto-resize textarea
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    });
+
+    // Enter to send (Shift+Enter for newline)
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+    sendBtn.addEventListener('click', handleSend);
+
+    function appendMessage(role, text) {
+      const wrap = document.createElement('div');
+      wrap.className = `message ${role}`;
+
+      const label = document.createElement('div');
+      label.className = 'message-label';
+      label.textContent = role === 'user' ? 'You' : 'Assistant';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+
+      wrap.appendChild(label);
+      wrap.appendChild(bubble);
+      thread.appendChild(wrap);
+      scrollToBottom();
+      return wrap;
+    }
+
+    function showLoading() {
+      const wrap = document.createElement('div');
+      wrap.className = 'message assistant';
+
+      const label = document.createElement('div');
+      label.className = 'message-label';
+      label.textContent = 'Assistant';
+
+      const lb = document.createElement('div');
+      lb.className = 'loading-bubble';
+      lb.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+
+      wrap.appendChild(label);
+      wrap.appendChild(lb);
+      thread.appendChild(wrap);
+      scrollToBottom();
+      return wrap;
+    }
+
+    function scrollToBottom() {
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    async function handleSend() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      sendBtn.disabled = true;
+
+      appendMessage('user', text);
+      const loader = showLoading();
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        loader.remove();
+        appendMessage('assistant', data.reply);
+      } catch (err) {
+        loader.remove();
+        appendMessage('assistant', 'Sorry, something went wrong. Please try again.');
+        console.error(err);
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    // Welcome message on load
+    window.addEventListener('DOMContentLoaded', () => {
+      appendMessage('assistant', 'Hi! Ask me about the nutritional content of any food item.');
+    });
+  </script>
+</body>
+</html>
