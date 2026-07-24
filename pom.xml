@@ -34,6 +34,10 @@
             ${maven.multiModuleProjectDirectory}/CiqualMcpServer/target/site/jacoco/jacoco.xml,
             ${maven.multiModuleProjectDirectory}/CiqualMcpClient/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.exclusions>
+            **/McpServerApplication.java,
+            **/McpClientApplication.java
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencyManagement>
