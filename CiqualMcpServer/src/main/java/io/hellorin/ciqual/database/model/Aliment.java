@@ -50,7 +50,7 @@ public record Aliment(
             code.trim(),
             nomFr.trim(),
             nomEng.trim(),
-            Optional.ofNullable(nomSci).filter(s -> !s.isBlank() && !s.equals(" ")),
+            Optional.ofNullable(nomSci).filter(s -> !s.isBlank() && !s.equals(" ")).map(String::trim),
             groupeCode.trim(),
             sousGroupeCode.trim(),
             sousSousGroupeCode.trim(),

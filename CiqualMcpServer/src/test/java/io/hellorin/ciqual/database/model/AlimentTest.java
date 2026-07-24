@@ -19,7 +19,7 @@ class AlimentTest {
         assertThat(aliment.code()).isEqualTo("12345");
         assertThat(aliment.nameFr()).isEqualTo("Poulet");
         assertThat(aliment.nameEn()).isEqualTo("Chicken");
-        assertThat(aliment.nameSci()).contains("Gallus gallus");
+        assertThat(aliment.nameSci()).isPresent().contains("Gallus gallus");
         assertThat(aliment.groupCode()).isEqualTo("01");
         assertThat(aliment.subgroupCode()).isEqualTo("0101");
         assertThat(aliment.subSubgroupCode()).isEqualTo("010101");

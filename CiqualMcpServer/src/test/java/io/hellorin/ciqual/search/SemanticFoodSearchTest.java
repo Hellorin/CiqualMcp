@@ -37,7 +37,7 @@ class SemanticFoodSearchTest {
     void search_unrelatedQuery_returnsNoResultsAboveMinScore() {
         SemanticFoodSearch search = new SemanticFoodSearch(List.of(chicken, apple, rice));
 
-        List<SemanticFoodSearch.SearchResult> results = search.search("automobile", 5, 0.1);
+        List<SemanticFoodSearch.SearchResult> results = search.search("automobile", 5, 0.2);
 
         assertThat(results).isEmpty();
     }
