@@ -65,8 +65,9 @@ public class SemanticFoodSearch {
         if (nameEnScore > 0) matchDetails.put("nameEn", nameEnScore);
 
         // Scientific name (weight: 0.7)
-        if (aliment.getNameSci().isPresent()) {
-            String nameSci = normalize(aliment.getNameSci().get());
+        Optional<String> nameSciOpt = aliment.getNameSci();
+        if (nameSciOpt.isPresent()) {
+            String nameSci = normalize(nameSciOpt.get());
             double nameSciScore = calculateFieldScore(nameSci, query, expandedTerms);
             score += nameSciScore * 0.7;
             if (nameSciScore > 0) matchDetails.put("nameSci", nameSciScore);
@@ -85,8 +86,9 @@ public class SemanticFoodSearch {
         if (subgroupScore > 0) matchDetails.put("subgroup", subgroupScore);
 
         // Sub-subgroup (weight: 0.6)
-        if (aliment.getGroup().subSubgroupNameEn().isPresent()) {
-            String subSubgroupName = normalize(aliment.getGroup().subSubgroupNameEn().get());
+        Optional<String> subSubgroupNameOpt = aliment.getGroup().subSubgroupNameEn();
+        if (subSubgroupNameOpt.isPresent()) {
+            String subSubgroupName = normalize(subSubgroupNameOpt.get());
             double subSubgroupScore = calculateFieldScore(subSubgroupName, query, expandedTerms);
             score += subSubgroupScore * 0.6;
             if (subSubgroupScore > 0) matchDetails.put("subSubgroup", subSubgroupScore);
