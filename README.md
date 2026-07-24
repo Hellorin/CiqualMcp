@@ -1,5 +1,19 @@
 # CiqualMcp
 
+**Quality:**
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+
+**Codebase:**
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Ciqualmcp&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Ciqualmcp)
+
+
 A small experimental project exploring two things at once:
 
 1. **MCP (Model Context Protocol) with Spring AI** — exposing and consuming tools via the MCP standard using Spring AI's server/client starters.
